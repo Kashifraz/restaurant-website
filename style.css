@@ -1,0 +1,33 @@
+*{
+    margin: 0;
+    padding:0;
+}
+body{
+    background-color: brown;
+    font-size: 16px;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+#header-nav{
+
+    background-color: rgb(243, 239, 239);
+    border: 0;
+    border-radius: 0;
+}
+
+#logo-img{
+
+    background-image: url("logo.png");
+    background-repeat: no-repeat;
+    height: 150px;
+    width: 150px;
+    margin: 10px 15px 10px 0px;
+}
+
+.navbar-brand a{
+    text-decoration: none;
+    
+}
+
+
+
