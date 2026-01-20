@@ -49,52 +49,25 @@ public class ReactionService {
      * Only friends can react to posts
      */
     public ReactionResponse addOrUpdateReaction(Long postId, Long userId, PostReaction.ReactionType reactionType) {
-        // Validate post exists
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
-
-        // Validate user exists
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Check if user is a friend of the post author (authorization)
-        // Allow users to react to their own posts (notification service will handle skipping notification)
-        boolean isOwnPost = post.getAuthor().getId().equals(userId);
-        if (!isOwnPost) {
+       ...
+        if (!isOwnPost) { // first bump (chunk of nested conditional)
             boolean areFriends = friendRequestRepository.areFriends(userId, post.getAuthor().getId());
             if (!areFriends) {
                 throw new RuntimeException("You can only react to posts from your friends");
             }
         }
-
-        // Check if reaction already exists
-        Optional<PostReaction> existingReaction = reactionRepository.findByPostIdAndUserId(postId, userId);
-
-        if (existingReaction.isPresent()) {
+       ...
+        if (existingReaction.isPresent()) { // Second bump (chunk of nested conditional)
             PostReaction reaction = existingReaction.get();
-            
-            // If same reaction type, remove it (toggle off)
             if (reaction.getReactionType() == reactionType) {
                 reactionRepository.delete(reaction);
                 return createReactionResponse(null, postId, userId, null);
             } else {
-                // If different reaction type, update it
-                reaction.setReactionType(reactionType);
-                reaction = reactionRepository.save(reaction);
+                ...
                 return createReactionResponse(reaction, postId, userId, reactionType);
             }
         } else {
-            // Create new reaction
-            PostReaction reaction = new PostReaction();
-            reaction.setPost(post);
-            reaction.setUser(user);
-            reaction.setReactionType(reactionType);
-            reaction = reactionRepository.save(reaction);
-            
-            // Send notification to post owner (only if it's a new reaction, not a toggle)
-            Long postOwnerId = post.getAuthor().getId();
-            notificationService.sendLikeNotification(postOwnerId, userId, postId);
-            
+            ...
             return createReactionResponse(reaction, postId, userId, reactionType);
         }
     }
@@ -172,4 +145,5 @@ public class ReactionService {
         return response;
     }
 }
+
 
